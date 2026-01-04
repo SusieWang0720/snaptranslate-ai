@@ -43,7 +43,7 @@
    GEMINI_API_KEY=your_api_key_here
    ```
    
-   > 注意：获取 API Key 请访问 [Google AI Studio](https://aistudio.google.com/app/apikey)
+   > 注意：需要配置 API Key 才能使用翻译功能。请联系项目维护者获取更多信息。
 
 4. **启动开发服务器**
    ```bash
