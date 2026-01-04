@@ -1,0 +1,5 @@
+{
+  "name": "SnapTranslate AI",
+  "description": "Instantly translate text within images while preserving the original layout and visuals using Google's Nano Banana Pro (Gemini 3 Pro Image) model.",
+  "requestFramePermissions": []
+}
