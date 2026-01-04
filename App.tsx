@@ -117,6 +117,14 @@ const App: React.FC = () => {
     });
   };
 
+  const handleClearAll = () => {
+    if (window.confirm('Are you sure you want to clear all images?')) {
+      setItems([]);
+      setSelectedId(null);
+      setGlobalError(null);
+    }
+  };
+
   const updateItemStatus = (id: string, status: TranslationStatus, translatedUrl?: string, error?: string) => {
     setItems(prev => prev.map(item => {
       if (item.id === id) {
@@ -257,6 +265,18 @@ const App: React.FC = () => {
               </Button>
             )}
 
+            {items.length > 0 && (
+              <Button 
+                onClick={handleClearAll}
+                variant="secondary"
+                disabled={isBatchProcessing}
+                className="px-4 py-2 text-sm"
+              >
+                <Trash2 size={16} className="mr-2" />
+                Empty
+              </Button>
+            )}
+
         </div>
       </header>
 
@@ -286,9 +306,12 @@ const App: React.FC = () => {
             // Empty State
             <div className="flex-1 flex flex-col items-center justify-center p-8">
                <div className="max-w-xl w-full h-64">
-                 <ImageUploader onImagesSelected={handleAddImages} disabled={isBatchProcessing} />
+                 <ImageUploader 
+                   onImagesSelected={handleAddImages} 
+                   disabled={isBatchProcessing}
+                   showHint={true}
+                 />
                </div>
-               <p className="mt-8 text-slate-500 text-sm">Upload images to begin batch translation.</p>
             </div>
           ) : selectedItem ? (
             // Comparison View

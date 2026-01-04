@@ -5,12 +5,14 @@ interface ImageUploaderProps {
   onImagesSelected: (files: FileList | null) => void;
   disabled?: boolean;
   compact?: boolean;
+  showHint?: boolean;
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({ 
   onImagesSelected, 
   disabled = false,
-  compact = false
+  compact = false,
+  showHint = false
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -69,8 +71,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           {compact ? 'Add Images' : 'Upload Images'}
         </h3>
         {!compact && (
-          <p className="text-slate-400 text-sm max-w-xs">
+          <p className="text-slate-400 text-sm max-w-xs mb-2">
             Drag & drop multiple images here
+          </p>
+        )}
+        {showHint && !compact && (
+          <p className="text-slate-500 text-xs mt-2 border-t border-slate-700/50 pt-2 w-full">
+            Upload images to begin batch translation.
           </p>
         )}
       </div>
