@@ -9,11 +9,14 @@ export const translateImage = async (
   mimeType: string,
   targetLanguage: TargetLanguage
 ): Promise<string> => {
-  if (!process.env.API_KEY) {
+  // Try both API_KEY and GEMINI_API_KEY for compatibility
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  
+  if (!apiKey) {
     throw new Error("API Key is missing. Please check your environment configuration.");
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey });
 
   // Advanced Prompt for Gemini 3 Pro
   // Explicitly structuring the request as an editing/inpainting task.

@@ -40,11 +40,18 @@ const App: React.FC = () => {
   useEffect(() => {
     const checkKey = async () => {
       try {
+        // First check AI Studio API (for AI Studio environment)
         if (window.aistudio && window.aistudio.hasSelectedApiKey) {
           const hasKey = await window.aistudio.hasSelectedApiKey();
           setHasApiKey(hasKey);
         } else {
-          setHasApiKey(!!process.env.API_KEY);
+          // Check build-time environment variable
+          const envKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+          const hasKey = !!envKey;
+          setHasApiKey(hasKey);
+          if (!hasKey) {
+            console.warn('API Key not configured. Please set GEMINI_API_KEY in GitHub Secrets for deployment.');
+          }
         }
       } catch (e) {
         console.error("Error checking API key:", e);
@@ -54,14 +61,6 @@ const App: React.FC = () => {
     };
     checkKey();
   }, []);
-
-  const handleSelectKey = async () => {
-    if (window.aistudio && window.aistudio.openSelectKey) {
-      await window.aistudio.openSelectKey();
-      setHasApiKey(true);
-      setGlobalError(null);
-    }
-  };
 
   const handleAddImages = useCallback((files: FileList | null) => {
     if (!files) return;
@@ -199,20 +198,17 @@ const App: React.FC = () => {
   }
 
   if (!hasApiKey) {
-    // Reuse existing Auth Screen logic (same as before but simplified for brevity here)
-     return (
+    return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl text-center space-y-6">
-            <div className="w-16 h-16 bg-brand-500/20 text-brand-500 rounded-2xl flex items-center justify-center mx-auto">
-              <ScanText size={32} />
+            <div className="w-16 h-16 bg-red-500/20 text-red-500 rounded-2xl flex items-center justify-center mx-auto">
+              <AlertCircle size={32} />
             </div>
-            <h1 className="text-2xl font-bold text-white">SnapTranslate AI</h1>
-            <p className="text-slate-400">Connect a valid Google Cloud API key to use <span className="text-brand-400">{MODEL_NAME}</span>.</p>
-            {globalError && (
-               <div className="p-3 bg-red-900/20 border border-red-800 text-red-200 text-sm rounded-lg">{globalError}</div>
-            )}
-            <Button onClick={handleSelectKey} className="w-full flex justify-center gap-2"><Key size={18}/> Connect API Key</Button>
-            <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="block text-xs text-slate-500 hover:text-slate-300">Billing Information &rarr;</a>
+            <h1 className="text-2xl font-bold text-white">API Key Not Configured</h1>
+            <p className="text-slate-400">The API key is not configured. Please contact the administrator.</p>
+            <div className="p-3 bg-slate-700/50 border border-slate-600 text-slate-300 text-sm rounded-lg">
+              <p className="text-xs">For administrators: Set GEMINI_API_KEY in GitHub Secrets to enable the application.</p>
+            </div>
         </div>
       </div>
     );
@@ -261,7 +257,6 @@ const App: React.FC = () => {
               </Button>
             )}
 
-           <button onClick={() => setHasApiKey(false)} className="p-2 text-slate-500 hover:text-slate-300" title="API Key"><Key size={16}/></button>
         </div>
       </header>
 
