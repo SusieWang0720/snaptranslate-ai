@@ -35,7 +35,7 @@ export const translateImage = async (
   `;
 
   let attempt = 0;
-  const maxAttempts = 3;
+  const maxAttempts = 5;  // Increased for better handling of 503 errors
   let lastError: any = null;
 
   while (attempt < maxAttempts) {
@@ -96,12 +96,15 @@ export const translateImage = async (
       console.error(`Gemini API Attempt ${attempt + 1} failed:`, error);
       
       const errorMessage = error.message || JSON.stringify(error);
-      const isInternalError = errorMessage.includes("500") || errorMessage.includes("INTERNAL") || errorMessage.includes("503") || errorMessage.includes("Overloaded");
+      const errorString = typeof error === 'object' ? JSON.stringify(error) : errorMessage;
+      const isOverloaded = errorString.includes("503") || errorString.includes("overloaded") || errorString.includes("UNAVAILABLE");
+      const isInternalError = errorString.includes("500") || errorString.includes("INTERNAL") || isOverloaded;
       
-      // If it's a 500 error, retry
+      // If it's a 500/503 error, retry with exponential backoff
       if (isInternalError && attempt < maxAttempts - 1) {
-        console.warn(`Encountered internal error (500/503). Retrying in ${(attempt + 1) * 2} seconds...`);
-        await delay(2000 * (attempt + 1)); // Wait 2s, 4s, etc.
+        const waitTime = Math.min(3000 * Math.pow(2, attempt), 30000); // 3s, 6s, 12s, 24s, max 30s
+        console.warn(`Encountered ${isOverloaded ? 'overload (503)' : 'internal'} error. Retrying in ${waitTime / 1000} seconds... (attempt ${attempt + 1}/${maxAttempts})`);
+        await delay(waitTime);
         attempt++;
         continue;
       }
@@ -114,11 +117,15 @@ export const translateImage = async (
   // If we exit the loop without returning, throw the last error
   let finalErrorMessage = lastError?.message || "Failed to process image translation.";
   
-  if (lastError?.error && lastError.error.message) {
+  const errorString = typeof lastError === 'object' ? JSON.stringify(lastError) : '';
+  
+  if (errorString.includes("503") || errorString.includes("overloaded") || errorString.includes("UNAVAILABLE")) {
+    finalErrorMessage = "Service is busy. Please try again in a few minutes.";
+  } else if (lastError?.error && lastError.error.message) {
     finalErrorMessage = lastError.error.message;
-  } else if (typeof lastError === 'object' && JSON.stringify(lastError).includes("PERMISSION_DENIED")) {
+  } else if (errorString.includes("PERMISSION_DENIED")) {
     finalErrorMessage = "PERMISSION_DENIED";
-  } else if (JSON.stringify(lastError).includes("User location is not supported")) {
+  } else if (errorString.includes("User location is not supported")) {
     finalErrorMessage = "User location is not supported. Please check your VPN/Region settings.";
   }
 
