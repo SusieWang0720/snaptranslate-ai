@@ -40,10 +40,12 @@
    
    在项目根目录创建 `.env.local` 文件：
    ```env
-   GEMINI_API_KEY=your_api_key_here
+   VENUS_API_KEY=your_venus_token_here
    ```
    
-   > 注意：需要配置 API Key 才能使用翻译功能。请联系项目维护者获取更多信息。
+   > 当前接入的是 Tencent Venus AI 代理（OpenAI 兼容协议，内网域名 `v2.open.venus.oa.com`）。
+   > Token 在 https://venus.woa.com 生成，需绑定有对应模型权限的应用组。
+   > 由于使用的是内网域名，应用需在公司办公网 / IDC 环境下运行。
 
 4. **启动开发服务器**
    ```bash

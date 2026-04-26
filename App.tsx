@@ -46,11 +46,14 @@ const App: React.FC = () => {
           setHasApiKey(hasKey);
         } else {
           // Check build-time environment variable
-          const envKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+          const envKey =
+            process.env.VENUS_API_KEY ||
+            process.env.API_KEY ||
+            process.env.GEMINI_API_KEY;
           const hasKey = !!envKey;
           setHasApiKey(hasKey);
           if (!hasKey) {
-            console.warn('API Key not configured. Please set GEMINI_API_KEY in GitHub Secrets for deployment.');
+            console.warn('API Key not configured. Please set VENUS_API_KEY in your environment or GitHub Secrets.');
           }
         }
       } catch (e) {
@@ -215,7 +218,7 @@ const App: React.FC = () => {
             <h1 className="text-2xl font-bold text-white">API Key Not Configured</h1>
             <p className="text-slate-400">The API key is not configured. Please contact the administrator.</p>
             <div className="p-3 bg-slate-700/50 border border-slate-600 text-slate-300 text-sm rounded-lg">
-              <p className="text-xs">For administrators: Set GEMINI_API_KEY in GitHub Secrets to enable the application.</p>
+              <p className="text-xs">For administrators: Set VENUS_API_KEY in your .env.local (or GitHub Secrets) to enable the application.</p>
             </div>
         </div>
       </div>

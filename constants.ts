@@ -18,5 +18,13 @@ export const SUPPORTED_LANGUAGES = [
   { value: TargetLanguage.ARABIC, label: '🇸🇦 Arabic' },
 ];
 
-// Upgraded to Gemini 3 Pro Image Preview (Nano Banana Pro)
-export const MODEL_NAME = 'gemini-3-pro-image-preview';
+// Venus endpoints. We always go through the Vite dev/preview proxy
+// (`/venus-api/*`) so the browser stays same-origin and avoids the CORS
+// preflight that Venus' gateway rejects with 403.
+export const VENUS_CHAT_URL = '/venus-api/llmproxy/chat/completions';
+export const VENUS_IMAGE_EDITS_URL = '/venus-api/chatproxy/images/edits';
+
+// gemini-3-pro-image goes through the OpenAI-compatible chat/completions
+// endpoint with multimodal in/out (Venus normalizes the response shape).
+// It preserves source aspect ratio and runs ~3x faster than gpt-image-2.
+export const MODEL_NAME = 'gemini-3-pro-image';
